@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My First Game</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+            background: #222;
+            color: white;
+        }
+
+        #game {
+            width: 600px;
+            height: 400px;
+            background: lightgreen;
+            margin: 20px auto;
+            position: relative;
+            border: 5px solid white;
+            overflow: hidden;
+        }
+
+        #player {
+            width: 40px;
+            height: 40px;
+            background: red;
+            position: absolute;
+            left: 50px;
+            top: 50px;
+        }
+
+        #coin {
+            position: absolute;
+            left: 300px;
+            top: 200px;
+            font-size: 32px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🎮 میری پہلی Game</h1>
+
+<div>
+    Score: <span id="score">0</span>
+</div>
+
+<div id="game">
+
+    <div id="player"></div>
+
+    <div id="coin">🪙</div>
+
+</div>
+
+<p>Arrow Keys سے 🔴 Player کو چلائیں</p>
+
+<script>
+
+    const player = document.getElementById("player");
+    const coin = document.getElementById("coin");
+    const scoreText = document.getElementById("score");
+
+    let x = 50;
+    let y = 50;
+    let score = 0;
+
+    const speed = 10;
+
+    document.addEventListener("keydown", function(event) {
+
+        if (event.key === "ArrowRight") {
+            x += speed;
+        }
+
+        if (event.key === "ArrowLeft") {
+            x -= speed;
+        }
+
+        if (event.key === "ArrowDown") {
+            y += speed;
+        }
+
+        if (event.key === "ArrowUp") {
+            y -= speed;
+        }
+
+        // Player کو Game کے اندر رکھنا
+        x = Math.max(0, Math.min(x, 560));
+        y = Math.max(0, Math.min(y, 360));
+
+        player.style.left = x + "px";
+        player.style.top = y + "px";
+
+        checkCoin();
+    });
+
+    function checkCoin() {
+
+        const coinX = parseInt(coin.style.left);
+        const coinY = parseInt(coin.style.top);
+
+        if (
+            Math.abs(x - coinX) < 40 &&
+            Math.abs(y - coinY) < 40
+        ) {
+
+            score++;
+
+            scoreText.textContent = score;
+
+            // Coin کو نئی جگہ منتقل کریں
+            coin.style.left =
+                Math.floor(Math.random() * 540) + "px";
+
+            coin.style.top =
+                Math.floor(Math.random() * 340) + "px";
+        }
+    }
+
+</script>
+
+</body>
+</html>
