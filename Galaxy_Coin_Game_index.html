@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Coin Game</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,sans-serif;color:white;text-align:center;background:radial-gradient(circle at top,#18245a 0,#090b20 45%,#03040d 100%);overflow-x:hidden}
+h1{margin:18px 0 8px;font-size:30px}
+#hud{font-size:20px;margin-bottom:10px}
+#game{width:min(90vw,700px);height:min(70vh,500px);min-height:380px;margin:auto;position:relative;overflow:hidden;border:4px solid white;border-radius:12px;background:radial-gradient(circle at 15% 20%,white 0 1px,transparent 2px),radial-gradient(circle at 70% 35%,white 0 1px,transparent 2px),radial-gradient(circle at 45% 75%,white 0 1px,transparent 2px),radial-gradient(circle at 85% 80%,white 0 1px,transparent 2px),linear-gradient(135deg,#10164b,#080a22 60%,#18052d)}
+#player{width:34px;height:34px;position:absolute;border-radius:50%;background:#20bfff;box-shadow:0 0 18px #20bfff,0 0 35px #2070ff}
+#player:before,#player:after{content:"";position:absolute;width:6px;height:6px;background:white;border-radius:50%;top:9px}
+#player:before{left:8px}#player:after{right:8px}
+#coin{width:25px;height:25px;position:absolute;border-radius:50%;background:#ffd21f;border:3px solid #fff3a0;box-shadow:0 0 15px #ffd21f}
+#enemy{width:34px;height:34px;position:absolute;border-radius:9px;background:#d84cff;box-shadow:0 0 18px #d84cff}
+#enemy:before{content:"";position:absolute;left:7px;right:7px;top:8px;height:6px;background:white;border-radius:4px}
+#gameOver{display:none;position:absolute;inset:0;background:rgba(0,0,0,.78);align-items:center;justify-content:center;flex-direction:column}
+#gameOver h2{font-size:42px;margin:0 0 10px;color:#ff5577}
+button{border:0;border-radius:10px;padding:12px 22px;font-size:17px;font-weight:bold;cursor:pointer;background:#20bfff;color:#06101d}
+#help{margin:12px 0 20px;font-size:15px}
+</style>
+</head>
+<body>
+<h1>🎮 Galaxy Coin Game</h1>
+<div id="hud">Score: <b id="score">0</b> | Lives: <b id="lives">3</b> | Level: <b id="level">1</b></div>
+<div id="game">
+<div id="player"></div><div id="coin"></div><div id="enemy"></div>
+<div id="gameOver"><h2>GAME OVER</h2><p>Final Score: <b id="finalScore">0</b></p><button onclick="restart()">Play Again</button></div>
+</div>
+<div id="help">⬅️ ⬆️ ⬇️ ➡️ Arrow Keys سے Player کو چلائیں اور ⭐ Coin جمع کریں۔</div>
+<script>
+const game=document.getElementById("game"),player=document.getElementById("player"),coin=document.getElementById("coin"),enemy=document.getElementById("enemy"),scoreEl=document.getElementById("score"),livesEl=document.getElementById("lives"),levelEl=document.getElementById("level"),gameOver=document.getElementById("gameOver"),finalScore=document.getElementById("finalScore");
+let px=80,py=80,ex=500,ey=250,cx=300,cy=180,score=0,lives=3,level=1,speed=4,keys={},running=true,invincible=false;
+function randomPos(size){return{x:Math.floor(Math.random()*(game.clientWidth-size)),y:Math.floor(Math.random()*(game.clientHeight-size))}}
+function placeCoin(){let p=randomPos(25);cx=p.x;cy=p.y}
+function resetEnemy(){let p=randomPos(34);ex=p.x;ey=p.y}
+function render(){player.style.left=px+"px";player.style.top=py+"px";coin.style.left=cx+"px";coin.style.top=cy+"px";enemy.style.left=ex+"px";enemy.style.top=ey+"px";scoreEl.textContent=score;livesEl.textContent=lives;levelEl.textContent=level}
+function hit(a,b,s=25){return a.x<b.x+s&&a.x+34>b.x&&a.y<b.y+s&&a.y+34>b.y}
+function update(){
+if(!running)return;
+if(keys.ArrowLeft)px-=5;if(keys.ArrowRight)px+=5;if(keys.ArrowUp)py-=5;if(keys.ArrowDown)py+=5;
+px=Math.max(0,Math.min(game.clientWidth-34,px));py=Math.max(0,Math.min(game.clientHeight-34,py));
+let dx=px-ex,dy=py-ey,d=Math.hypot(dx,dy)||1;ex+=dx/d*speed;ey+=dy/d*speed;
+if(hit({x:px,y:py},{x:cx,y:cy})){score++;if(score%5===0){level++;speed=Math.min(8,4+level*.6)}placeCoin()}
+if(!invincible&&hit({x:px,y:py},{x:ex,y:ey},34)){lives--;invincible=true;if(lives<=0){running=false;finalScore.textContent=score;gameOver.style.display="flex"}else{px=80;py=80;resetEnemy();setTimeout(()=>invincible=false,900)}}
+render()
+}
+function restart(){px=80;py=80;score=0;lives=3;level=1;speed=4;running=true;invincible=false;placeCoin();resetEnemy();gameOver.style.display="none";render()}
+document.addEventListener("keydown",e=>{if(e.key.startsWith("Arrow"))e.preventDefault();keys[e.key]=true});
+document.addEventListener("keyup",e=>keys[e.key]=false);
+placeCoin();resetEnemy();render();setInterval(update,20);
+</script>
+</body>
+</html>
